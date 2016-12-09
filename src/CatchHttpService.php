@@ -1,36 +1,41 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mohammada
- * Date: 12/7/2016
- * Time: 4:18 PM
- */
-
 namespace CatchAuthClient;
 
+use CatchAuthClient\CatchResponse\Response;
+use CatchResponse\CatchResponse;
+use GuzzleHttp\Client as Guzzle;
+use GuzzleHttp\Exception\ClientException;
 
 class CatchHttpService
 {
-    const Auth_URL = mAuth_URL;
-    const Auth_check = mAuth_check_URL;
-    const Auth_addUser = mAuth_addUser_URL;
-    const Auth_listUsers = mAuth_listUsers_URL;
-    const Auth_setPass = mAuth_setPass_URL;
-    const Auth_operations = mAuth_operations_URL;
+
+    private static $urls = [
+        'authenticate' => 'http://127.0.0.1/catchsolutions/catchAuth/legacy/index.php', // http://auth.catchsolutions.com.au/
+        'check' => 'http://127.0.0.1/catchsolutions/catchAuth/legacy/check/index.php', // http://auth.catchsolutions.com.au/
+        'addUser' => 'http://127.0.0.1/catchsolutions/catchAuth/legacy/addUser/index.php', // http://auth.catchsolutions.com.au/
+        'listUsers' => 'http://127.0.0.1/catchsolutions/catchAuth/legacy/listUsers/index.php', // http://auth.catchsolutions.com.au/
+        'setPass' => 'http://127.0.0.1/catchsolutions/catchAuth/legacy/setPass/index.php', // http://auth.catchsolutions.com.au/
+    ];
+
+    private static $defaultOperationUrl = 'http://127.0.0.1/catchsolutions/catchAuth/legacy/operations/index.php'; // http://auth.catchsolutions.com.au/
 
     public static function execute(CatchHttpParams $params, $method = 'GET')
     {
         try {
-            $http = new Client(['verify' => false]);
-            $attempt = $http->request($method, self::generateURL($params::getRecordType()), [
-                'form_params' => $params::getParams()
+            $http = new Guzzle(['verify' => false]);
+            $attempt = $http->request($method, self::getUrl(debug_backtrace()[1]['function']), [
+                'query' => $params::getParams()
             ]);
-            $return = (new ZohoResponse($attempt->getBody(), $params::getRecordType(), $params::getVersion()))
-                ->handleResponse();
+            $return = (new Response($attempt->getBody()))->handle();
             $params::reset();
             return $return;
         } catch (ClientException $e) {
             throw new \Exception($e->getMessage(), $e->getCode());
         }
+    }
+
+    public static function getUrl($operation)
+    {
+        return array_key_exists($operation, self::$urls) ? self::$urls[$operation] : self::$defaultOperationUrl;
     }
 }

@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mohammada
- * Date: 12/7/2016
- * Time: 4:21 PM
- */
-
 namespace CatchAuthClient;
 
 
@@ -17,12 +10,19 @@ class CatchHttpParams
      */
     protected static $uemail = null;
     /**
-     * @var $scope
+     * @var
      */
     protected static $uname = null;
 
-    public function __construct()
+    /**
+     * @var
+     */
+    protected static $authKey = null;
+
+
+    public function __construct($authKey)
     {
+        self::$authKey = $authKey;
     }
 
     /**
@@ -30,8 +30,7 @@ class CatchHttpParams
      */
     public static function reset()
     {
-        $persistent = [
-        ];
+        $persistent = [];
 
         foreach (get_class_vars(self::class) as $name => $value){
             if (!in_array($name, $persistent)) {
@@ -52,9 +51,6 @@ class CatchHttpParams
             if (isset(self::$$name)) {
                 $params[$name] = $value;
             }
-        }
-        if (isset($params['recordType'])){
-            unset ($params['recordType']);
         }
         return $params;
     }

@@ -1,10 +1,7 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mohammada
- * Date: 12/2/2016
- * Time: 12:59 PM
- */
+
+namespace CatchAuthClient\Interfaces;
+
 interface ManageUsersInterface
 {
     public function addUser();
